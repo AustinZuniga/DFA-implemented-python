@@ -39,6 +39,11 @@ class DFA:
         return self.in_accept_state();
     pass;
 
+
+
+
+
+
 # class fpr operations needed
 class operations:
     # function to generate languages based on size and input word
@@ -124,33 +129,39 @@ class operations:
         for i in denied:
             table.add_row([' ',i])
         print(table)
+    def clear(self):
+        os.system('cls||clear')
+        print(' ----------------------------------------------')
+        print('|     DETERMINISTIC FINITE AUTOMATA (DFA)      |')
+        print(' ----------------------------------------------')
     
     #the main
     def main(self):
-        os.system('cls||clear')
-        print(' ----------------------------------------------')
-        print('|     DETERMINISTIC FINITE AUTOMATA (DFA)      |')
-        print(' ----------------------------------------------')
+        self.clear()
 
         #inialize all variable
         states = self.get_states()
-        print(states)
+        self.clear()
+        print('states: %s\n\n'%states)
         alphabet = self.get_alphabet()
-        print(alphabet)
+        self.clear()
+        print('states: %s'%states)
+        print('alphabet: %s \n\n'%alphabet)
         transition = self.get_transition_function()
-        
+        self.clear()
+        print('states: %s'%states)
+        print('alphabet: %s'%alphabet)
+        print('transition: %s \n\n'%transition)
         start_state = raw_input("Enter start state: ");
         start_state = int(start_state)
         accept_states = self.get_accept_states();
-
         
-        os.system('cls||clear')
-        print(' ----------------------------------------------')
-        print('|     DETERMINISTIC FINITE AUTOMATA (DFA)      |')
-        print(' ----------------------------------------------')    
-        print('States: %s \n'%states)
-        print('Values: %s \n'%alphabet)
-        print('Accepted States: %s \n\n'%accept_states)
+        self.clear()
+        print('states: %s'%states)
+        print('alphabet: %s'%alphabet)
+        print('transition: %s'%transition)
+        print('Start state: %s'%start_state)
+        print('Accept States: %s \n\n'%accept_states)
 
         # initialize all variable in class DFA
         dfa = DFA(states, alphabet, transition, start_state, accept_states);
