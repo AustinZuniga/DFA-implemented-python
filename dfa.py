@@ -8,6 +8,9 @@ import os,sys
 import itertools
 from itertools import product
 from prettytable import PrettyTable
+import pygraphviz as pgv
+from IPython.display import Image, display
+
 
 # DFA Function: check if language is in DFA machine
 class DFA:
@@ -161,6 +164,22 @@ class operations:
                             if(i[1] == j):
                                 table.add_row([j, '','',i[0]])
         print(table)
+    #printing DFA diagram
+    def print_DFA_diagram(self,transition):
+        G=pgv.AGraph()
+        G=pgv.AGraph(strict=False,directed=True)
+
+        to_append = 'digraph G {size="4,4"; ' 
+        for i in transition:
+            target = transition.get(i)
+            initial = i[0]
+            value = i[1]
+            to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,value)
+        to_append = to_append + '}'
+        A=pgv.AGraph(to_append)
+        A.layout()
+        A.layout(prog='dot')
+        A.draw('dfa.png')
 
     #the main
     def main(self):
@@ -198,6 +217,7 @@ class operations:
         self.print_transition(states,alphabet,transition)
         print('Start state: %s'%start_state)
         print('Accept States: %s \n\n'%accept_states)
+        self.print_DFA_diagram(transition)
 
         # initialize all variable in class DFA
         dfa = DFA(states, alphabet, transition, start_state, accept_states);
