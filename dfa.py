@@ -12,6 +12,7 @@ from prettytable import PrettyTable
 # DFA Function: check if language is in DFA machine
 class DFA:
     current_state = None;
+    #initialize all variable when calling the class DFA
     def __init__(self, states, alphabet, transition_function, start_state, accept_states):
         self.states = states;
         self.alphabet = alphabet;
@@ -21,6 +22,7 @@ class DFA:
         self.current_state = start_state;
         return;
     
+    #check if input in transition function initialize
     def transition_to_state_with_input(self, input_value):
         if ((self.current_state, input_value) not in self.transition_function.keys()):
             self.current_state = None;
@@ -28,18 +30,18 @@ class DFA:
         self.current_state = self.transition_function[(self.current_state, input_value)];
         return;
     
+    #return result
     def in_accept_state(self):
         return self.current_state in accept_states;
     
-    def run_with_input_list(self, input_list):
+    #check each character if in transition
+    def check_if_dfa(self, input_list):
         self.current_state = self.start_state;
         for inp in input_list:
             self.transition_to_state_with_input(inp);
             continue;
         return self.in_accept_state();
     pass;
-
-
 
 
 
@@ -159,7 +161,7 @@ class operations:
                             if(i[1] == j):
                                 table.add_row([j, '','',i[0]])
         print(table)
-        
+
     #the main
     def main(self):
         self.clear()
@@ -199,29 +201,55 @@ class operations:
 
         # initialize all variable in class DFA
         dfa = DFA(states, alphabet, transition, start_state, accept_states);
-        
-        # get length of language to be generated from user
-        input_user = raw_input("Enter Lenght of language to be generated: "); 
+        input_user_choice = '1'
+        while input_user_choice != '0':
+            self.clear()
+            #print all input from user
+            print('states: %s'%states)
+            print('alphabet: %s'%alphabet)
+            self.print_transition(states,alphabet,transition)
+            print('Start state: %s'%start_state)
+            print('Accept States: %s \n\n'%accept_states)
+            input_user_choice = raw_input("Enter 1 to generate, 2 for manual input: ")
+            if(input_user_choice == '1'):
 
-        string_alphabet = self.concatenate_list_data(alphabet)
-        number_to_generate = int(input_user)
+                # get length of language to be generated from user
+                input_user = raw_input("Enter Lenght of language to be generated: "); 
 
-        #generate all posible combination of the string alphabet
-        generated_value = self.generate_language(number_to_generate,string_alphabet)
+                string_alphabet = self.concatenate_list_data(alphabet)
+                number_to_generate = int(input_user)
 
-        #initialize list for accepted and denied languages
-        accepted = list()
-        denied = list()
+                #generate all posible combination of the string alphabet
+                generated_value = self.generate_language(number_to_generate,string_alphabet)
 
-        #check if language is accepted by the DFA machine
-        for i in generated_value:
-            if(dfa.run_with_input_list(i)):
-                accepted.append(i)
-            else:
-                denied.append(i)
+                #initialize list for accepted and denied languages
+                accepted = list()
+                denied = list()
 
-        # print the result
-        self.print_table(accepted,denied)
+                #check if language is accepted by the DFA machine
+                for i in generated_value:
+                    if(dfa.check_if_dfa(i)):
+                        accepted.append(i)
+                    else:
+                        denied.append(i)
+
+                # print the result
+                self.print_table(accepted,denied)
+                stop = raw_input()
+            elif(input_user_choice == '2'):
+                input_user = raw_input("Enter language: ");
+                accepted = list()
+                denied = list()
+
+                #check if language is accepted by the DFA machine
+
+                if(dfa.check_if_dfa(input_user)):
+                    accepted.append(input_user)
+                else:
+                    denied.append(input_user)
+                self.print_table(accepted,denied)
+                stop = raw_input()
+
 
 
 
@@ -230,4 +258,9 @@ accept_states = [0];
 #inialize class
 operation = operations();
 #call main function
-operation.main()
+try:
+    operation.main()    
+except:
+    print("There was an error in running the program")
+
+
