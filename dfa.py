@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
-#DFA implemented using python
+# Deterministic Finite Automata (DFA) implementation in python
 
-#TODO: generate transition table 
 
-import os
+
+import os,sys
 import itertools
 from itertools import product
 from prettytable import PrettyTable
@@ -49,7 +49,7 @@ class operations:
     # function to generate languages based on size and input word
     def generate_language(self,size,input_word):
         array_of_language = list()
-        for word in itertools.permutations(input_word,size):   
+        for word in itertools.product(input_word,repeat = size):   
             generated = ''.join(word)
             array_of_language.append(generated)
         return array_of_language    
@@ -134,39 +134,73 @@ class operations:
         print(' ----------------------------------------------')
         print('|     DETERMINISTIC FINITE AUTOMATA (DFA)      |')
         print(' ----------------------------------------------')
-    
+
+    def print_transition(self,states,alphabet,transition):
+        table = PrettyTable()
+        header = states
+        header = ['Values']+header
+        table.field_names = header
+
+        print("Transition Table")
+        for i in transition:
+            for state in states:
+                if(transition.get(i) == state):
+                    num_of_index = len(states)
+                    if(states.index(state) == 0):
+                        for j in alphabet:
+                            if(i[1] == j):
+                                table.add_row([j, i[0],'',''])
+                    elif(states.index(state) == 1):
+                        for j in alphabet:
+                            if(i[1] == j):
+                                table.add_row([j, '',i[0],''])
+                    elif(states.index(state) == 2):
+                        for j in alphabet:
+                            if(i[1] == j):
+                                table.add_row([j, '','',i[0]])
+        print(table)
+        
     #the main
     def main(self):
         self.clear()
 
-        #inialize all variable
+        #inialize all variable and get data from user
+        
+        #get states from user
         states = self.get_states()
         self.clear()
+        
+        #get alphabet from user
         print('states: %s\n\n'%states)
         alphabet = self.get_alphabet()
         self.clear()
+        
+        #get transition function from user
         print('states: %s'%states)
         print('alphabet: %s \n\n'%alphabet)
         transition = self.get_transition_function()
         self.clear()
+
+        #get start state and accept state from user
         print('states: %s'%states)
         print('alphabet: %s'%alphabet)
-        print('transition: %s \n\n'%transition)
+        self.print_transition(states,alphabet,transition)
         start_state = raw_input("Enter start state: ");
         start_state = int(start_state)
         accept_states = self.get_accept_states();
-        
         self.clear()
+
+        #print all input from user
         print('states: %s'%states)
         print('alphabet: %s'%alphabet)
-        print('transition: %s'%transition)
+        self.print_transition(states,alphabet,transition)
         print('Start state: %s'%start_state)
         print('Accept States: %s \n\n'%accept_states)
 
         # initialize all variable in class DFA
         dfa = DFA(states, alphabet, transition, start_state, accept_states);
         
-        # get lenght of language from user
+        # get length of language to be generated from user
         input_user = raw_input("Enter Lenght of language to be generated: "); 
 
         string_alphabet = self.concatenate_list_data(alphabet)
