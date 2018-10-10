@@ -1,7 +1,8 @@
 # DFA-implemented-python
 <br />
-Deterministic Finite Automaton Implemented in Python Language<br />
--> a python program that creates a DFA machine (5-tuple),generates set of language and checks if the generated language is accepted by the created DFA machine. 
+
+##Deterministic Finite Automaton Implemented in Python Language
+-> a python program that creates a DFA machine (5-tuple),generates set of language and checks if the generated language is accepted by the created DFA machine. <br /><br />
 
 A deterministic finite automaton M is a 5-tuple, ( Q , Σ , δ , q0 , F ) consisting of<br />
 
@@ -12,26 +13,33 @@ A deterministic finite automaton M is a 5-tuple, ( Q , Σ , δ , q0 , F ) consis
     a set of accept states F ⊆ Q 
 
 
-Package used:<br />
+#####Package used:
 ->graphviz<br />
 ->PrettyTable<br />
 <br />
-Install required package to run the program<br />
+
+#####Install required package to run the program
 |sudo apt-get install graphviz libgraphviz-dev graphviz-dev pkg-config<br />
 |pip install pygraphviz<br />
 |pip install PrettyTable<br />
 
-run the program<br />
+#####run the program
 | chmod +x dfa.py<br />
 | ./dfa.py<br />
 
 <br />
-<br />
-Required Input:<br />
-	set of states Q<br />
-		{0,1,2,3}<br />
-	set of alphabet Σ <br />
-		{a,b,c}<br />
+
+#####Required Input:
+	set of states Q
+		{0,1,2,3}
+
+<br/>
+
+	set of alphabet Σ 
+		{a,b,c}
+
+
+<br/>
 
 	transition function δ : Q × Σ → Q 
 		current state: {0}
@@ -48,11 +56,11 @@ Required Input:<br />
 	a set of accept states F ⊆ Q 
 		{1,0}
 
-Sample run<br />
+#####Sample run<br />
 	![alt text](screenshot/display.png)
 
-Sample result<br />
+#####Sample result<br />
 	![alt text](screenshot/result.png)
 
-Sample DFA Diagram Generated:<br />
+#####Sample DFA Diagram Generated:<br />
 	![alt text](dfa.png)
