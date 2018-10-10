@@ -13,23 +13,23 @@ A deterministic finite automaton M is a 5-tuple, ( Q , Σ , δ , q0 , F ) consis
     a set of accept states F ⊆ Q 
 
 
-###### Package used:
+##### Package used:
 ->graphviz<br />
 ->PrettyTable<br />
 <br />
 
-###### Install required package to run the program
+##### Install required package to run the program
 |sudo apt-get install graphviz libgraphviz-dev graphviz-dev pkg-config<br />
 |pip install pygraphviz<br />
 |pip install PrettyTable<br />
 
-###### run the program
+##### run the program
 | chmod +x dfa.py<br />
 | ./dfa.py<br />
 
 <br />
 
-###### Required Input:
+##### Required Input:
 	set of states Q
 		{0,1,2,3}
 
@@ -56,11 +56,11 @@ A deterministic finite automaton M is a 5-tuple, ( Q , Σ , δ , q0 , F ) consis
 	a set of accept states F ⊆ Q 
 		{1,0}
 
-###### Sample run 
-	![alt text](screenshot/display.png)
+##### Sample run 
+![alt text](screenshot/display.png)
 
-###### Sample result
-	![alt text](screenshot/result.png)
+##### Sample result
+![alt text](screenshot/result.png)
 
-###### Sample DFA Diagram Generated:
-	![alt text](dfa.png)
+##### Sample DFA Diagram Generated:
+![alt text](dfa.png)
