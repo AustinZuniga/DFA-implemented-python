@@ -2,6 +2,8 @@
 
 # Deterministic Finite Automata (DFA) implementation in python
 
+#Author: Earl Austin Zuniga
+#Bicol University
 
 
 import os,sys
@@ -34,38 +36,20 @@ class DFA:
         return;
     
     #return result
-    def in_accept_state(self):
+    def in_accept_state(self,accept_states):
         return self.current_state in accept_states;
     
     #check each character if in transition
-    def check_if_dfa(self, input_list):
+    def check_if_dfa(self, input_list,accept_states):
         self.current_state = self.start_state;
         for inp in input_list:
             self.transition_to_state_with_input(inp);
             continue;
-        return self.in_accept_state();
+        return self.in_accept_state(accept_states);
     pass;
 
-
-
-
-# class fpr operations needed
-class operations:
-    # function to generate languages based on size and input word
-    def generate_language(self,size,input_word):
-        array_of_language = list()
-        for word in itertools.product(input_word,repeat = size):   
-            generated = ''.join(word)
-            array_of_language.append(generated)
-        return array_of_language    
-
-    #turn list values into a single variable
-    def concatenate_list_data(self,list):
-        result= ''
-        for element in list:
-            result += str(element)
-        return result
-
+# class for getting input from user
+class get_input_user:
     #get states from user
     def get_states(self):
         input_user = ''
@@ -125,6 +109,24 @@ class operations:
             pass
         return transition
 
+
+# class fpr operations needed
+class operations:
+    # function to generate languages based on size and input word
+    def generate_language(self,size,input_word):
+        array_of_language = list()
+        for word in itertools.product(input_word,repeat = size):   
+            generated = ''.join(word)
+            array_of_language.append(generated)
+        return array_of_language    
+
+    #turn list values into a single variable
+    def concatenate_list_data(self,list):
+        result= ''
+        for element in list:
+            result += str(element)
+        return result
+
     #print table
     def print_table(self,approved,denied):
         table = PrettyTable()
@@ -134,12 +136,15 @@ class operations:
         for i in denied:
             table.add_row([' ',i])
         print(table)
+    
+    #clear screen for Linux 
     def clear(self):
         os.system('cls||clear')
         print(' ----------------------------------------------')
         print('|     DETERMINISTIC FINITE AUTOMATA (DFA)      |')
         print(' ----------------------------------------------')
-
+    
+    #printing transition table
     def print_transition(self,states,alphabet,transition):
         table = PrettyTable()
         header = states
@@ -154,17 +159,22 @@ class operations:
                     if(states.index(state) == 0):
                         for j in alphabet:
                             if(i[1] == j):
-                                table.add_row([j, i[0],'',''])
+                                table.add_row([j, i[0],'','',''])
                     elif(states.index(state) == 1):
                         for j in alphabet:
                             if(i[1] == j):
-                                table.add_row([j, '',i[0],''])
+                                table.add_row([j, '',i[0],'',''])
                     elif(states.index(state) == 2):
                         for j in alphabet:
                             if(i[1] == j):
-                                table.add_row([j, '','',i[0]])
+                                table.add_row([j, '','',i[0],''])
+                    elif(states.index(state) == 3):
+                        for j in alphabet:
+                            if(i[1] == j):
+                                table.add_row([j, '','','',i[0]])
         print(table)
-    #printing DFA diagram
+    
+    #printing DFA diagram: output image
     def print_DFA_diagram(self,transition):
         G=pgv.AGraph()
         G=pgv.AGraph(strict=False,directed=True)
@@ -184,22 +194,22 @@ class operations:
     #the main
     def main(self):
         self.clear()
-
+        get_input_user_class = get_input_user();
         #inialize all variable and get data from user
         
         #get states from user
-        states = self.get_states()
+        states = get_input_user_class.get_states()
         self.clear()
         
         #get alphabet from user
         print('states: %s\n\n'%states)
-        alphabet = self.get_alphabet()
+        alphabet = get_input_user_class.get_alphabet()
         self.clear()
         
         #get transition function from user
         print('states: %s'%states)
         print('alphabet: %s \n\n'%alphabet)
-        transition = self.get_transition_function()
+        transition = get_input_user_class.get_transition_function()
         self.clear()
 
         #get start state and accept state from user
@@ -208,7 +218,7 @@ class operations:
         self.print_transition(states,alphabet,transition)
         start_state = raw_input("Enter start state: ");
         start_state = int(start_state)
-        accept_states = self.get_accept_states();
+        accept_states = get_input_user_class.get_accept_states();
         self.clear()
 
         #print all input from user
@@ -221,6 +231,7 @@ class operations:
 
         # initialize all variable in class DFA
         dfa = DFA(states, alphabet, transition, start_state, accept_states);
+        
         input_user_choice = '1'
         while input_user_choice != '0':
             self.clear()
@@ -248,7 +259,7 @@ class operations:
 
                 #check if language is accepted by the DFA machine
                 for i in generated_value:
-                    if(dfa.check_if_dfa(i)):
+                    if(dfa.check_if_dfa(i,accept_states)):
                         accepted.append(i)
                     else:
                         denied.append(i)
@@ -263,7 +274,7 @@ class operations:
 
                 #check if language is accepted by the DFA machine
 
-                if(dfa.check_if_dfa(input_user)):
+                if(dfa.check_if_dfa(input_user,accept_states)):
                     accepted.append(input_user)
                 else:
                     denied.append(input_user)
@@ -271,16 +282,13 @@ class operations:
                 stop = raw_input()
 
 
-
-
-#needed
-accept_states = [0];
 #inialize class
 operation = operations();
 #call main function
 try:
     operation.main()    
 except:
-    print("There was an error in running the program")
+    # if error encountered display error message
+    print("\n\nThere was an error in running the program")
 
 

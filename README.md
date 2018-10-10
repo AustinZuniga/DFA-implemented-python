@@ -1,8 +1,7 @@
 # DFA-implemented-python
-<br />
 
-## Deterministic Finite Automaton Implemented in Python Language
--> a python program that creates a DFA machine (5-tuple),generates set of language and checks if the generated language is accepted by the created DFA machine. <br /><br />
+## Deterministic Finite Automaton Generator Python 
+>  a python program that creates a DFA machine (5-tuple),generates set of language and checks if the generated language is accepted by the created DFA machine. <br /><br />
 
 A deterministic finite automaton M is a 5-tuple, ( Q , Σ , δ , q0 , F ) consisting of<br />
 
@@ -14,18 +13,18 @@ A deterministic finite automaton M is a 5-tuple, ( Q , Σ , δ , q0 , F ) consis
 
 
 ##### Package used:
-->graphviz<br />
-->PrettyTable<br />
+> graphviz<br />
+> PrettyTable<br />
 <br />
 
 ##### Install required package to run the program
-|sudo apt-get install graphviz libgraphviz-dev graphviz-dev pkg-config<br />
-|pip install pygraphviz<br />
-|pip install PrettyTable<br />
+> sudo apt-get install graphviz libgraphviz-dev graphviz-dev pkg-config<br />
+> pip install pygraphviz<br />
+> pip install PrettyTable<br />
 
 ##### run the program
-| chmod +x dfa.py<br />
-| ./dfa.py<br />
+> chmod +x dfa.py<br />
+> ./dfa.py<br />
 
 <br />
 
