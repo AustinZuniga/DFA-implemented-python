@@ -126,6 +126,19 @@ class operations:
         for element in list:
             result += str(element)
         return result
+    def greedy_scanner(self,arr,pos):
+        end = len(arr)
+        num_of_dup = 0
+        for i in range(pos,end):
+            j = i + 1
+            if(j == end):
+                j = j -1
+                break
+            if arr[i] == arr[j]:
+                num_of_dup = num_of_dup + 1
+            else:
+                break
+        return num_of_dup+1,j,arr[j-1]
 
     #print table
     def print_table(self,approved,denied):
@@ -191,95 +204,136 @@ class operations:
         A.layout(prog='dot')
         A.draw('dfa.png')
 
+    def print_DFA_diagram_language(self,s):
+        G=pgv.AGraph()
+        G=pgv.AGraph(strict=False,directed=True)
+
+        to_append = 'digraph G {size="4,4"; '
+        
+        target = 1
+        initial = 0
+        i = 0
+        while i < len(s):
+            result = 0
+            result = self.greedy_scanner(s,i)
+            if(result[0] != 1):
+                i = result[1]
+                to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,result[2])
+            else:
+                if(i == len(s)):
+                    ab = 1
+                else:
+                    to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,s[i])
+                i = i + 1
+                initial = initial + 1
+                target = target+1
+
+        to_append = to_append + '}'
+        A=pgv.AGraph(to_append)
+        A.layout()
+        A.layout(prog='dot')
+        A.draw('dfa-language.png')
+
+
     #the main
     def main(self):
         self.clear()
-        get_input_user_class = get_input_user();
-        #inialize all variable and get data from user
-        
-        #get states from user
-        states = get_input_user_class.get_states()
-        self.clear()
-        
-        #get alphabet from user
-        print('states: %s\n\n'%states)
-        alphabet = get_input_user_class.get_alphabet()
-        self.clear()
-        
-        #get transition function from user
-        print('states: %s'%states)
-        print('alphabet: %s \n\n'%alphabet)
-        transition = get_input_user_class.get_transition_function()
-        self.clear()
-
-        #get start state and accept state from user
-        print('states: %s'%states)
-        print('alphabet: %s'%alphabet)
-        self.print_transition(states,alphabet,transition)
-        start_state = raw_input("Enter start state: ");
-        start_state = int(start_state)
-        accept_states = get_input_user_class.get_accept_states();
-        self.clear()
-
-        #print all input from user
-        print('states: %s'%states)
-        print('alphabet: %s'%alphabet)
-        self.print_transition(states,alphabet,transition)
-        print('Start state: %s'%start_state)
-        print('Accept States: %s \n\n'%accept_states)
-        self.print_DFA_diagram(transition)
-
-        # initialize all variable in class DFA
-        dfa = DFA(states, alphabet, transition, start_state, accept_states);
-        
-        input_user_choice = '1'
-        while input_user_choice != '0':
+        choice = 0
+        while choice != '3':
             self.clear()
-            #print all input from user
-            print('states: %s'%states)
-            print('alphabet: %s'%alphabet)
-            self.print_transition(states,alphabet,transition)
-            print('Start state: %s'%start_state)
-            print('Accept States: %s \n\n'%accept_states)
-            input_user_choice = raw_input("Enter 1 to generate, 2 for manual input: ")
-            if(input_user_choice == '1'):
+            choice = raw_input("Select Option \n\n1: inialize DFA;\n2: language to DFA diagram\n\n: ")
+            if(choice == '2'):
+                a = raw_input("Enter Language: ")
+                s = list()
+                s = map(str,a)
+                self.print_DFA_diagram_language(s)
+            elif(choice == '1'):
+                get_input_user_class = get_input_user();
+                #inialize all variable and get data from user
+                
+                #get states from user
+                states = get_input_user_class.get_states()
+                self.clear()
+                
+                #get alphabet from user
+                print('states: %s\n\n'%states)
+                alphabet = get_input_user_class.get_alphabet()
+                self.clear()
+                
+                #get transition function from user
+                print('states: %s'%states)
+                print('alphabet: %s \n\n'%alphabet)
+                transition = get_input_user_class.get_transition_function()
+                self.clear()
 
-                # get length of language to be generated from user
-                input_user = raw_input("Enter Lenght of language to be generated: "); 
+                #get start state and accept state from user
+                print('states: %s'%states)
+                print('alphabet: %s'%alphabet)
+                self.print_transition(states,alphabet,transition)
+                start_state = raw_input("Enter start state: ");
+                start_state = int(start_state)
+                accept_states = get_input_user_class.get_accept_states();
+                self.clear()
 
-                string_alphabet = self.concatenate_list_data(alphabet)
-                number_to_generate = int(input_user)
+                #print all input from user
+                print('states: %s'%states)
+                print('alphabet: %s'%alphabet)
+                self.print_transition(states,alphabet,transition)
+                print('Start state: %s'%start_state)
+                print('Accept States: %s \n\n'%accept_states)
+                self.print_DFA_diagram(transition)
 
-                #generate all posible combination of the string alphabet
-                generated_value = self.generate_language(number_to_generate,string_alphabet)
+                # initialize all variable in class DFA
+                dfa = DFA(states, alphabet, transition, start_state, accept_states);
+                
+                input_user_choice = '1'
+                while input_user_choice != '3':
+                    self.clear()
+                    #print all input from user
+                    print('states: %s'%states)
+                    print('alphabet: %s'%alphabet)
+                    self.print_transition(states,alphabet,transition)
+                    print('Start state: %s'%start_state)
+                    print('Accept States: %s \n\n'%accept_states)
+                    input_user_choice = raw_input("Enter 1 to generate, 2 for manual input: ")
+                    if(input_user_choice == '1'):
 
-                #initialize list for accepted and denied languages
-                accepted = list()
-                denied = list()
+                        # get length of language to be generated from user
+                        input_user = raw_input("Enter Lenght of language to be generated: "); 
 
-                #check if language is accepted by the DFA machine
-                for i in generated_value:
-                    if(dfa.check_if_dfa(i,accept_states)):
-                        accepted.append(i)
-                    else:
-                        denied.append(i)
+                        string_alphabet = self.concatenate_list_data(alphabet)
+                        number_to_generate = int(input_user)
 
-                # print the result
-                self.print_table(accepted,denied)
-                stop = raw_input()
-            elif(input_user_choice == '2'):
-                input_user = raw_input("Enter language: ");
-                accepted = list()
-                denied = list()
+                        #generate all posible combination of the string alphabet
+                        generated_value = self.generate_language(number_to_generate,string_alphabet)
 
-                #check if language is accepted by the DFA machine
+                        #initialize list for accepted and denied languages
+                        accepted = list()
+                        denied = list()
 
-                if(dfa.check_if_dfa(input_user,accept_states)):
-                    accepted.append(input_user)
-                else:
-                    denied.append(input_user)
-                self.print_table(accepted,denied)
-                stop = raw_input()
+                        #check if language is accepted by the DFA machine
+                        for i in generated_value:
+                            if(dfa.check_if_dfa(i,accept_states)):
+                                accepted.append(i)
+                            else:
+                                denied.append(i)
+
+                        # print the result
+                        self.print_table(accepted,denied)
+                        stop = raw_input()
+                    elif(input_user_choice == '2'):
+                        input_user = raw_input("Enter language: ");
+                        accepted = list()
+                        denied = list()
+
+                        #check if language is accepted by the DFA machine
+
+                        if(dfa.check_if_dfa(input_user,accept_states)):
+                            accepted.append(input_user)
+                        else:
+                            denied.append(input_user)
+                        self.print_table(accepted,denied)
+                        stop = raw_input()
 
 
 #inialize class
