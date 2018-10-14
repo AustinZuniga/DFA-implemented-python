@@ -126,19 +126,17 @@ class operations:
         for element in list:
             result += str(element)
         return result
+    
     def greedy_scanner(self,arr,pos):
-        end = len(arr)
-        num_of_dup = 0
-        for i in range(pos,end):
-            j = i + 1
-            if(j == end):
-                j = j -1
-                break
-            if arr[i] == arr[j]:
-                num_of_dup = num_of_dup + 1
+        for i in range(pos,len(arr)):
+            if(i+1 != len(arr)):
+                if(arr[i+1] == '*'):
+                    return 1
+                else:
+                    return 0
             else:
                 break
-        return num_of_dup+1,j,arr[j-1]
+
 
     #print table
     def print_table(self,approved,denied):
@@ -204,29 +202,50 @@ class operations:
         A.layout(prog='dot')
         A.draw('dfa.png')
 
-    def print_DFA_diagram_language(self,s):
+    def print_DFA_diagram_language(self,arr):
         G=pgv.AGraph()
         G=pgv.AGraph(strict=False,directed=True)
-
+        initial = 0
+        target = 1
         to_append = 'digraph G {size="4,4"; '
         
-        target = 1
-        initial = 0
-        i = 0
-        while i < len(s):
-            result = 0
-            result = self.greedy_scanner(s,i)
-            if(result[0] != 1):
-                i = result[1]
-                to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,result[2])
-            else:
-                if(i == len(s)):
-                    ab = 1
+        if '+' in arr:
+            #split
+            arr = arr.split('+')
+            #turn into list each
+            for i in range(0,len(arr)):
+                arr[i] = map(str,arr[i])
+            i = 0
+            indi = 0
+            while i < len(arr):
+                j = 0
+                while j < len(arr[i]):
+                    if(self.greedy_scanner(arr[i],j) == 1):
+                        to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i][j])
+                        j+=2
+                    else:
+                        to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i][j])
+                        initial = initial + 1
+                        target = target+1
+                        j+=1
+                    if(indi > 0):
+                        initial = target - 1
+                initial = 0
+                indi = 1
+                target = target
+                i+=1
+        else:
+            arr = map(str,arr)
+            i = 0
+            while i < len(arr):
+                if(self.greedy_scanner(arr,i) == 1):
+                    to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i])
+                    i+=2
                 else:
-                    to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,s[i])
-                i = i + 1
-                initial = initial + 1
-                target = target+1
+                    to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i])
+                    initial = initial + 1
+                    target = target+1
+                    i+=1
 
         to_append = to_append + '}'
         A=pgv.AGraph(to_append)
@@ -241,12 +260,10 @@ class operations:
         choice = 0
         while choice != '3':
             self.clear()
-            choice = raw_input("Select Option \n\n1: inialize DFA;\n2: language to DFA diagram\n\n: ")
+            choice = raw_input("Select Option \n\n1: Inialize DFA and check accepted and denied Languages;\n2: Convert Regular Expression to DFA diagram\n\n: ")
             if(choice == '2'):
                 a = raw_input("Enter Language: ")
-                s = list()
-                s = map(str,a)
-                self.print_DFA_diagram_language(s)
+                self.print_DFA_diagram_language(a)
             elif(choice == '1'):
                 get_input_user_class = get_input_user();
                 #inialize all variable and get data from user
