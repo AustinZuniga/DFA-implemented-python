@@ -12,7 +12,7 @@ from itertools import product
 from prettytable import PrettyTable
 import pygraphviz as pgv
 from IPython.display import Image, display
-
+import re
 
 # DFA Function: check if language is in DFA machine
 class DFA:
@@ -26,7 +26,7 @@ class DFA:
         self.accept_states = accept_states;
         self.current_state = start_state;
         return;
-    
+
     #check if input in transition function initialize
     def transition_to_state_with_input(self, input_value):
         if ((self.current_state, input_value) not in self.transition_function.keys()):
@@ -34,11 +34,11 @@ class DFA:
             return;
         self.current_state = self.transition_function[(self.current_state, input_value)];
         return;
-    
+
     #return result
     def in_accept_state(self,accept_states):
         return self.current_state in accept_states;
-    
+
     #check each character if in transition
     def check_if_dfa(self, input_list,accept_states):
         self.current_state = self.start_state;
@@ -52,60 +52,67 @@ class DFA:
 class get_input_user:
     #get states from user
     def get_states(self):
-        input_user = ''
+        operation = operations()
         states_arr = list()
-        while input_user != 'END':
-            states = raw_input("(enter end to exit) Enter states:")
-            if(states == 'end'):
-                input_user = 'END'
+        states = raw_input(" Enter states: ")
+        states = states.split(',')
+
+        # limit states to 3
+        if len(states) > 4:
+            operation.error_msg()
+
+        for token in states:
+            if re.match('^[0-9]',token):
+                states_arr.append(int(token))
             else:
-                states_arr.append(int(states))
-            pass
+                operation.error_msg()
         return states_arr
-    
+
     #get alphabet from user
     def get_alphabet(self):
-        input_user = ''
         alphabet_arr = list()
-        while input_user != 'END':
-            alphabet = raw_input("(enter end to exit) Enter alphabet:")
-            if(alphabet == 'end'):
-                input_user = 'END'
+        alphabet = raw_input(" Enter alphabet: ")
+        alphabet = alphabet.split(',')
+        for token in alphabet:
+            if re.match('^[A-Z,a-z]',token):
+                alphabet_arr.append(str(token))
             else:
-                alphabet_arr.append(str(alphabet))
-            pass
+                operation = operations()
+                operation.error_msg()
         return alphabet_arr
+
     # get accept states from user
     def get_accept_states(self):
-        input_user = ''
         states_arr = list()
-        while input_user != 'END':
-            states = raw_input("(enter end to exit) Enter accept states:")
-            if(states == 'end'):
-                input_user = 'END'
+        states = raw_input(" Enter Accept states: ")
+        states = states.split(',')
+        for token in states:
+            if re.match('^[0-9]',token):
+                states_arr.append(int(token))
             else:
-                states_arr.append(int(states))
-            pass
+                operation = operations()
+                operation.error_msg()
         return states_arr
-    
+
     #get transition function from user
     def get_transition_function(self):
         input_user = ''
         transition = dict();
 
         while input_user != 'end':
-            input_user = raw_input("Enter 1 to initialize transition function. end to end: ")
+            input_user = raw_input("Enter 1 to initialize transition function. end to exit: ")
             if(input_user == 'end'):
                 input_user = 'end'
             else:
                 initial = raw_input("Enter initial state value: ")
                 value = raw_input("Enter value: ")
                 target = raw_input("Enter target state: ")
-                print(initial)
-                print(value)
-                print(target)
-                transition[(int(initial),value)] = int(target);
-                print(transition)
+                if re.match('^[0-9]',initial) and re.match('^[0-9]',target) and re.match('^[a-z,A-Z]',value):
+                    transition[(int(initial),value)] = int(target);
+                    print(transition)
+                else:
+                    operation = operations()
+                    operation.error_msg()
             pass
         return transition
 
@@ -115,10 +122,10 @@ class operations:
     # function to generate languages based on size and input word
     def generate_language(self,size,input_word):
         array_of_language = list()
-        for word in itertools.product(input_word,repeat = size):   
+        for word in itertools.product(input_word,repeat = size):
             generated = ''.join(word)
             array_of_language.append(generated)
-        return array_of_language    
+        return array_of_language
 
     #turn list values into a single variable
     def concatenate_list_data(self,list):
@@ -126,7 +133,8 @@ class operations:
         for element in list:
             result += str(element)
         return result
-    
+
+    # scan list
     def greedy_scanner(self,arr,pos):
         for i in range(pos,len(arr)):
             if(i+1 != len(arr)):
@@ -137,7 +145,6 @@ class operations:
             else:
                 break
 
-
     #print table
     def print_table(self,approved,denied):
         table = PrettyTable()
@@ -147,14 +154,14 @@ class operations:
         for i in denied:
             table.add_row([' ',i])
         print(table)
-    
-    #clear screen for Linux 
+
+    #clear screen for Linux
     def clear(self):
         os.system('cls||clear')
         print(' ----------------------------------------------')
         print('|     DETERMINISTIC FINITE AUTOMATA (DFA)      |')
         print(' ----------------------------------------------')
-    
+
     #printing transition table
     def print_transition(self,states,alphabet,transition):
         table = PrettyTable()
@@ -184,13 +191,13 @@ class operations:
                             if(i[1] == j):
                                 table.add_row([j, '','','',i[0]])
         print(table)
-    
+
     #printing DFA diagram: output image
     def print_DFA_diagram(self,transition):
         G=pgv.AGraph()
         G=pgv.AGraph(strict=False,directed=True)
 
-        to_append = 'digraph G {size="4,4"; ' 
+        to_append = 'digraph G {size="4,4"; '
         for i in transition:
             target = transition.get(i)
             initial = i[0]
@@ -202,13 +209,51 @@ class operations:
         A.layout(prog='dot')
         A.draw('dfa.png')
 
+    # to do
+    def DFA_to_REGEX(self,transition):
+        concat = ""
+        for word in sorted(transition.iterkeys()):
+            target = transition.get(word)
+            initial = word[0]
+            value = word[1]
+            if(target == initial):
+                concat = concat + value+"*"
+            else:
+                concat = concat + value
+        return concat
+
+    # error message
+    def error_msg(self):
+        print('\n\nError parsing input')
+        exit()
+
+    #tokenize input of user and check if correct
+    def tokenize(self,arr):
+        tokenize = map(str,arr)
+        tokenize_all = ''
+        for word in tokenize:
+            if re.match('^[a-z,A-Z]',word):
+                tokenize_all = tokenize_all + "(String,%s) "%word
+            elif re.match('^[1-9]',word):
+                tokenize_all = tokenize_all + "(Integer,%s) "%word
+            elif word == '+':
+                tokenize_all = tokenize_all + "(Plus,%s) "%word
+            elif word == '*':
+                tokenize_all = tokenize_all + "(Epsilon,%s) "%word
+            else:
+                self.error_msg()
+        print(tokenize_all)
+        stop = raw_input()
+
+    # print DFA diagram from language
     def print_DFA_diagram_language(self,arr):
+        self.tokenize(arr)
         G=pgv.AGraph()
         G=pgv.AGraph(strict=False,directed=True)
         initial = 0
         target = 1
         to_append = 'digraph G {size="4,4"; '
-        
+
         if '+' in arr:
             #split
             arr = arr.split('+')
@@ -267,16 +312,16 @@ class operations:
             elif(choice == '1'):
                 get_input_user_class = get_input_user();
                 #inialize all variable and get data from user
-                
+
                 #get states from user
                 states = get_input_user_class.get_states()
                 self.clear()
-                
+
                 #get alphabet from user
                 print('states: %s\n\n'%states)
                 alphabet = get_input_user_class.get_alphabet()
                 self.clear()
-                
+
                 #get transition function from user
                 print('states: %s'%states)
                 print('alphabet: %s \n\n'%alphabet)
@@ -300,9 +345,10 @@ class operations:
                 print('Accept States: %s \n\n'%accept_states)
                 self.print_DFA_diagram(transition)
 
+
                 # initialize all variable in class DFA
                 dfa = DFA(states, alphabet, transition, start_state, accept_states);
-                
+
                 input_user_choice = '1'
                 while input_user_choice != '3':
                     self.clear()
@@ -311,12 +357,13 @@ class operations:
                     print('alphabet: %s'%alphabet)
                     self.print_transition(states,alphabet,transition)
                     print('Start state: %s'%start_state)
-                    print('Accept States: %s \n\n'%accept_states)
+                    print('Accept States: %s '%accept_states)
+                    print("Converted DFA to Regular Expression: %s \n\n"%self.DFA_to_REGEX(transition))
                     input_user_choice = raw_input("Enter 1 to generate, 2 for manual input: ")
                     if(input_user_choice == '1'):
 
                         # get length of language to be generated from user
-                        input_user = raw_input("Enter Lenght of language to be generated: "); 
+                        input_user = raw_input("Enter Lenght of language to be generated: ");
 
                         string_alphabet = self.concatenate_list_data(alphabet)
                         number_to_generate = int(input_user)
@@ -353,13 +400,13 @@ class operations:
                         stop = raw_input()
 
 
+
+
 #inialize class
 operation = operations();
 #call main function
 try:
-    operation.main()    
+    operation.main()
 except:
     # if error encountered display error message
-    print("\n\nThere was an error in running the program")
-
-
+    print("\n\nThere was an error in running the program. Please enter correct Input")

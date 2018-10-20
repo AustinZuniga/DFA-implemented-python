@@ -1,4 +1,4 @@
-# DFA-generator-and-converter-python
+# DFA: generator,converter,checker python
 
 ## Deterministic Finite Automaton Generator and converter Python 
 >  a python program that creates a DFA machine (5-tuple),generates set of language and checks if the generated language is accepted by the created DFA machine and converts Regular Expression to DFA. <br /><br />
@@ -55,7 +55,7 @@ A deterministic finite automaton M is a 5-tuple, ( Q , Σ , δ , q0 , F ) consis
 	a set of accept states F ⊆ Q 
 		{1,0}
 
-##### Require Input(Regular Expression to DFA)
+##### required Input(Regular Expression to DFA)
 
 	Regular Expression 
 		ab*+cd
