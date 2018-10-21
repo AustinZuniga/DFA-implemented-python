@@ -1,0 +1,25 @@
+states->0,1,2,3;
+alphabet->a,b,c;
+transition->
+	{
+		initial=0,
+		value=a,
+		target=1
+	}:
+	{
+		initial=1,
+		value=b,
+		target=2
+	}:
+	{
+		initial=2,
+		value=a,
+		target=2
+	}:
+	{
+		initial=2,
+		value=c,
+		target=3
+	};
+start state->0;
+accept states->1,2,3;

@@ -1,10 +1,10 @@
 #!/usr/bin/python
+# -*- coding: latin-1 -*-
 
 # Deterministic Finite Automata (DFA) implementation in python
 
 #Author: Earl Austin Zuniga
 #Bicol University
-
 
 import os,sys
 import itertools
@@ -49,75 +49,104 @@ class DFA:
     pass;
 
 # class for getting input from user
-class get_input_user:
-    #get states from user
-    def get_states(self):
-        operation = operations()
-        states_arr = list()
-        states = raw_input(" Enter states: ")
-        states = states.split(',')
-
-        # limit states to 3
-        if len(states) > 4:
-            operation.error_msg()
-
-        for token in states:
-            if re.match('^[0-9]',token):
-                states_arr.append(int(token))
-            else:
-                operation.error_msg()
-        return states_arr
-
-    #get alphabet from user
-    def get_alphabet(self):
-        alphabet_arr = list()
-        alphabet = raw_input(" Enter alphabet: ")
-        alphabet = alphabet.split(',')
-        for token in alphabet:
-            if re.match('^[A-Z,a-z]',token):
-                alphabet_arr.append(str(token))
-            else:
-                operation = operations()
-                operation.error_msg()
-        return alphabet_arr
-
-    # get accept states from user
-    def get_accept_states(self):
-        states_arr = list()
-        states = raw_input(" Enter Accept states: ")
-        states = states.split(',')
-        for token in states:
-            if re.match('^[0-9]',token):
-                states_arr.append(int(token))
-            else:
-                operation = operations()
-                operation.error_msg()
-        return states_arr
-
-    #get transition function from user
-    def get_transition_function(self):
-        input_user = ''
-        transition = dict();
-
-        while input_user != 'end':
-            input_user = raw_input("Enter 1 to initialize transition function. end to exit: ")
-            if(input_user == 'end'):
-                input_user = 'end'
-            else:
-                initial = raw_input("Enter initial state value: ")
-                value = raw_input("Enter value: ")
-                target = raw_input("Enter target state: ")
-                if re.match('^[0-9]',initial) and re.match('^[0-9]',target) and re.match('^[a-z,A-Z]',value):
-                    transition[(int(initial),value)] = int(target);
-                    print(transition)
+class get_input_file:
+    # preprocess data: removal of new line and tabs from data file
+    def preprocess_data(self,data):
+        data = data.split(';')
+        data_arr = list()
+        for word in data:
+            word_to = ""
+            i=0
+            while i < len(word):
+                if word[i] == '\n' or word[i] == '\t' :
+                    i = i + 1
                 else:
-                    operation = operations()
+                    word_to = word_to + word[i]
+                    i = i + 1
+            data_arr.append(word_to)
+        return self.process_data(data_arr)
+    #process input to get data and check if valid
+    def process_data(self,data_arr):
+        operation = operations()
+        for word in data_arr:
+            if '->' in word:
+                process = word.split('->')
+                if(process[0] == 'states'):
+                    states = self.check_data(process[1],process[0])
+                elif(process[0] == 'alphabet'):
+                    alphabet = self.check_data(process[1],process[0])
+                elif(process[0] == 'accept states'):
+                    accept_states = self.check_data(process[1],process[0])
+                elif(process[0] == 'start state'):
+                    start_state = self.check_data(process[1],process[0])
+                elif(process[0] == 'transition'):
+                    transition = self.check_data(process[1],process[0])
+                else:
                     operation.error_msg()
-            pass
-        return transition
+            else:
+                pass
+        return states,alphabet,accept_states,start_state,transition
+    # check data from file if valid. includes: tokenize,lexical analysis
+    def check_data(self,data,type):
+        data_arr = list()
+        operation = operations()
+        if(type == "states" or type == "accept states"):
+            data = data.split(',')
+            # limit states to 3
+            if len(data) > 4:
+                operation.error_msg()
+            for token in data:
+                if re.match('^[0-9]',token):
+                    data_arr.append(int(token))
+                else:
+                    operation.error_msg()
+        elif(type == "start state"):
+            data_arr = int(data)
+        elif(type == "alphabet"):
+            data = data.split(',')
+            for token in data:
+                if re.match('^[A-Z,a-z]',token):
+                    data_arr.append(str(token))
+                else:
+                    operation.error_msg()
+        elif(type == "transition"):
+            data_arr = dict()
+            #split transition data
+            data = data.split(':')
+            data_list = list()
+            for transition in data:
+                #split transition data using ',' to get initialize data
+                transition_list = list()
+                transition = transition.split(',')
+                for transition_data in transition:
+                    #split again to seperate name and value
+                    transition_data = transition_data.split('=')
+                    transition_data_list= list()
+                    for transition_data_value_name in transition_data:
+                        #turn name and value into array to check for errors and eliminate some characters
+                        transition_data_value_name_map = map(str,transition_data_value_name)
+                        array_token_list = ""
+                        if '{' in transition_data_value_name_map or '}' in transition_data_value_name_map:
+                            array_token = ""
+                            for transition_data_value_name_array in transition_data_value_name_map:
+                                if(transition_data_value_name_array == '{' or transition_data_value_name_array == '}'):
+                                    pass
+                                else:
+                                    array_token = array_token + transition_data_value_name_array
+                            array_token_list = array_token_list + array_token
+                        else:
+                            array_token_list =array_token_list + transition_data_value_name
+                        transition_data_list.append(array_token_list)
+                    transition_list.append(transition_data_list)
+                data_list.append(transition_list)
+            for word in data_list:
+                initial = word[0][1]
+                value = word[1][1]
+                target = word[2][1]
+                data_arr[(int(initial),value)] = int(target);
+        return data_arr
 
-
-# class fpr operations needed
+# class for operations needed
 class operations:
     # function to generate languages based on size and input word
     def generate_language(self,size,input_word):
@@ -126,14 +155,12 @@ class operations:
             generated = ''.join(word)
             array_of_language.append(generated)
         return array_of_language
-
     #turn list values into a single variable
     def concatenate_list_data(self,list):
         result= ''
         for element in list:
             result += str(element)
         return result
-
     # scan list
     def greedy_scanner(self,arr,pos):
         for i in range(pos,len(arr)):
@@ -144,7 +171,6 @@ class operations:
                     return 0
             else:
                 break
-
     #print table
     def print_table(self,approved,denied):
         table = PrettyTable()
@@ -154,21 +180,18 @@ class operations:
         for i in denied:
             table.add_row([' ',i])
         print(table)
-
     #clear screen for Linux
     def clear(self):
         os.system('cls||clear')
         print(' ----------------------------------------------')
         print('|     DETERMINISTIC FINITE AUTOMATA (DFA)      |')
         print(' ----------------------------------------------')
-
     #printing transition table
     def print_transition(self,states,alphabet,transition):
         table = PrettyTable()
         header = states
         header = ['Values']+header
         table.field_names = header
-
         print("Transition Table")
         for i in transition:
             for state in states:
@@ -208,7 +231,6 @@ class operations:
         A.layout()
         A.layout(prog='dot')
         A.draw('dfa.png')
-
     # to do
     def DFA_to_REGEX(self,transition):
         concat = ""
@@ -221,12 +243,10 @@ class operations:
             else:
                 concat = concat + value
         return concat
-
     # error message
     def error_msg(self):
         print('\n\nError parsing input')
-        exit()
-
+        sys.exit()
     #tokenize input of user and check if correct
     def tokenize(self,arr):
         tokenize = map(str,arr)
@@ -244,7 +264,6 @@ class operations:
                 self.error_msg()
         print(tokenize_all)
         stop = raw_input()
-
     # print DFA diagram from language
     def print_DFA_diagram_language(self,arr):
         self.tokenize(arr)
@@ -297,8 +316,6 @@ class operations:
         A.layout()
         A.layout(prog='dot')
         A.draw('dfa-language.png')
-
-
     #the main
     def main(self):
         self.clear()
@@ -307,49 +324,27 @@ class operations:
             self.clear()
             choice = raw_input("Select Option \n\n1: Inialize DFA and check accepted and denied Languages;\n2: Convert Regular Expression to DFA diagram\n\n: ")
             if(choice == '2'):
-                a = raw_input("Enter Language: ")
-                self.print_DFA_diagram_language(a)
+                regex = raw_input("Enter Language: ")
+                self.print_DFA_diagram_language(regex)
             elif(choice == '1'):
-                get_input_user_class = get_input_user();
-                #inialize all variable and get data from user
-
-                #get states from user
-                states = get_input_user_class.get_states()
-                self.clear()
-
-                #get alphabet from user
-                print('states: %s\n\n'%states)
-                alphabet = get_input_user_class.get_alphabet()
-                self.clear()
-
-                #get transition function from user
-                print('states: %s'%states)
-                print('alphabet: %s \n\n'%alphabet)
-                transition = get_input_user_class.get_transition_function()
-                self.clear()
-
-                #get start state and accept state from user
-                print('states: %s'%states)
-                print('alphabet: %s'%alphabet)
-                self.print_transition(states,alphabet,transition)
-                start_state = raw_input("Enter start state: ");
-                start_state = int(start_state)
-                accept_states = get_input_user_class.get_accept_states();
-                self.clear()
-
-                #print all input from user
-                print('states: %s'%states)
-                print('alphabet: %s'%alphabet)
-                self.print_transition(states,alphabet,transition)
-                print('Start state: %s'%start_state)
-                print('Accept States: %s \n\n'%accept_states)
+                get_input_user_class = get_input_file();
+                # get data from file
+                data = open("data.txt", "r")
+                data = data.read()
+                # process data retrieved from file: data.txt
+                data = get_input_user_class.preprocess_data(data)
+                #inialize all variable
+                states = data[0]
+                alphabet = data[1]
+                accept_states = data[2]
+                start_state = data[3]
+                transition = data[4]
+                # create a DFA diagram based on transition function
                 self.print_DFA_diagram(transition)
-
-
                 # initialize all variable in class DFA
                 dfa = DFA(states, alphabet, transition, start_state, accept_states);
-
                 input_user_choice = '1'
+                # loop for choosing
                 while input_user_choice != '3':
                     self.clear()
                     #print all input from user
@@ -361,47 +356,40 @@ class operations:
                     print("Converted DFA to Regular Expression: %s \n\n"%self.DFA_to_REGEX(transition))
                     input_user_choice = raw_input("Enter 1 to generate, 2 for manual input: ")
                     if(input_user_choice == '1'):
-
                         # get length of language to be generated from user
                         input_user = raw_input("Enter Lenght of language to be generated: ");
-
+                        # initialize data for generating language
                         string_alphabet = self.concatenate_list_data(alphabet)
                         number_to_generate = int(input_user)
-
                         #generate all posible combination of the string alphabet
                         generated_value = self.generate_language(number_to_generate,string_alphabet)
-
                         #initialize list for accepted and denied languages
                         accepted = list()
                         denied = list()
-
                         #check if language is accepted by the DFA machine
                         for i in generated_value:
                             if(dfa.check_if_dfa(i,accept_states)):
                                 accepted.append(i)
                             else:
                                 denied.append(i)
-
-                        # print the result
+                        # print truth table
                         self.print_table(accepted,denied)
                         stop = raw_input()
+                    # for manual input of language
                     elif(input_user_choice == '2'):
                         input_user = raw_input("Enter language: ");
                         accepted = list()
                         denied = list()
-
                         #check if language is accepted by the DFA machine
-
                         if(dfa.check_if_dfa(input_user,accept_states)):
                             accepted.append(input_user)
                         else:
                             denied.append(input_user)
+                        # print truth table
                         self.print_table(accepted,denied)
                         stop = raw_input()
 
-
-
-
+#main
 #inialize class
 operation = operations();
 #call main function
