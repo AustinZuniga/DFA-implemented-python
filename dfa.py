@@ -49,7 +49,7 @@ class DFA:
     pass;
 
 # class for getting input from user
-class get_input_file:
+class process_file_data:
     # preprocess data: removal of new line and tabs from data file
     def preprocess_data(self,data):
         data = data.split(';')
@@ -139,11 +139,13 @@ class get_input_file:
                         transition_data_list.append(array_token_list)
                     transition_list.append(transition_data_list)
                 data_list.append(transition_list)
+            #build dict to create transition function
             for word in data_list:
                 initial = word[0][1]
                 value = word[1][1]
                 target = word[2][1]
                 data_arr[(int(initial),value)] = int(target);
+
         return data_arr
 
 # class for operations needed
@@ -327,7 +329,7 @@ class operations:
                 regex = raw_input("Enter Language: ")
                 self.print_DFA_diagram_language(regex)
             elif(choice == '1'):
-                get_input_user_class = get_input_file();
+                get_input_user_class = process_file_data();
                 # get data from file
                 data = open("data.txt", "r")
                 data = data.read()
@@ -397,4 +399,4 @@ try:
     operation.main()
 except:
     # if error encountered display error message
-    print("\n\nThere was an error in running the program. Please enter correct Input")
+    print("\n\nThere was an error in running the program.")
