@@ -48,7 +48,7 @@ class DFA:
         return self.in_accept_state(accept_states);
     pass;
 
-# class for getting input from user
+# class for processing file data
 class process_file_data:
     # preprocess data: removal of new line and tabs from data file
     def preprocess_data(self,data):
@@ -86,7 +86,7 @@ class process_file_data:
             else:
                 pass
         return states,alphabet,accept_states,start_state,transition
-    # check data from file if valid. includes: tokenize,lexical analysis
+    # check data from file if valid. includes: tokenize,lexical analysis and type checking
     def check_data(self,data,type):
         data_arr = list()
         operation = operations()
@@ -163,7 +163,7 @@ class operations:
         for element in list:
             result += str(element)
         return result
-    # scan list
+    # scan list return true if var has *
     def greedy_scanner(self,arr,pos):
         for i in range(pos,len(arr)):
             if(i+1 != len(arr)):
@@ -173,7 +173,40 @@ class operations:
                     return 0
             else:
                 break
-    #print table
+    #todo
+    def DFA_to_REGEX(self,transition):
+        concat = ""
+        for word in sorted(transition.iterkeys()):
+            target = transition.get(word)
+            initial = word[0]
+            value = word[1]
+            if(target == initial):
+                concat = concat + value+"*"
+            else:
+                concat = concat + value
+        return concat
+    # error message
+    def error_msg(self):
+        print('\n\nError parsing input')
+        sys.exit()
+    #tokenize input of user and check if correct
+    def tokenize(self,arr):
+        tokenize = map(str,arr)
+        tokenize_all = ''
+        for word in tokenize:
+            if re.match('^[a-z,A-Z]',word):
+                tokenize_all = tokenize_all + "(String,%s) "%word
+            elif re.match('^[1-9]',word):
+                tokenize_all = tokenize_all + "(Integer,%s) "%word
+            elif word == '+':
+                tokenize_all = tokenize_all + "(Plus,%s) "%word
+            elif word == '*':
+                tokenize_all = tokenize_all + "(Epsilon,%s) "%word
+            else:
+                self.error_msg()
+        print(tokenize_all)
+        stop = raw_input()
+    #print truth table
     def print_table(self,approved,denied):
         table = PrettyTable()
         table.field_names = ['accepted', 'rejected']
@@ -187,6 +220,8 @@ class operations:
         os.system('cls||clear')
         print(' ----------------------------------------------')
         print('|     DETERMINISTIC FINITE AUTOMATA (DFA)      |')
+        print('|                                              |')
+        print('| DFA DATA: data.txt                           |')
         print(' ----------------------------------------------')
     #printing transition table
     def print_transition(self,states,alphabet,transition):
@@ -233,39 +268,6 @@ class operations:
         A.layout()
         A.layout(prog='dot')
         A.draw('dfa.png')
-    # to do
-    def DFA_to_REGEX(self,transition):
-        concat = ""
-        for word in sorted(transition.iterkeys()):
-            target = transition.get(word)
-            initial = word[0]
-            value = word[1]
-            if(target == initial):
-                concat = concat + value+"*"
-            else:
-                concat = concat + value
-        return concat
-    # error message
-    def error_msg(self):
-        print('\n\nError parsing input')
-        sys.exit()
-    #tokenize input of user and check if correct
-    def tokenize(self,arr):
-        tokenize = map(str,arr)
-        tokenize_all = ''
-        for word in tokenize:
-            if re.match('^[a-z,A-Z]',word):
-                tokenize_all = tokenize_all + "(String,%s) "%word
-            elif re.match('^[1-9]',word):
-                tokenize_all = tokenize_all + "(Integer,%s) "%word
-            elif word == '+':
-                tokenize_all = tokenize_all + "(Plus,%s) "%word
-            elif word == '*':
-                tokenize_all = tokenize_all + "(Epsilon,%s) "%word
-            else:
-                self.error_msg()
-        print(tokenize_all)
-        stop = raw_input()
     # print DFA diagram from language
     def print_DFA_diagram_language(self,arr):
         self.tokenize(arr)
@@ -324,7 +326,7 @@ class operations:
         choice = 0
         while choice != '3':
             self.clear()
-            choice = raw_input("Select Option \n\n1: Inialize DFA and check accepted and denied Languages;\n2: Convert Regular Expression to DFA diagram\n\n: ")
+            choice = raw_input("Select Option \n\n1: Inialize DFA and check accepted and denied Languages;\n2: Convert Regular Expression to DFA diagram\n3: exit program\n\n: ")
             if(choice == '2'):
                 regex = raw_input("Enter Language: ")
                 self.print_DFA_diagram_language(regex)
