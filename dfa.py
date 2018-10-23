@@ -193,23 +193,6 @@ class operations:
     def error_msg(self,msg):
         print "\n\n%s"%msg
         sys.exit()
-    #tokenize input of user and check if correct
-    def tokenize(self,arr):
-        tokenize = map(str,arr)
-        tokenize_all = ''
-        for word in tokenize:
-            if re.match('^[a-z,A-Z]',word):
-                tokenize_all = tokenize_all + "(String,%s) "%word
-            elif re.match('^[1-9]',word):
-                tokenize_all = tokenize_all + "(Integer,%s) "%word
-            elif word == '+':
-                tokenize_all = tokenize_all + "(Plus,%s) "%word
-            elif word == '*':
-                tokenize_all = tokenize_all + "(Epsilon,%s) "%word
-            else:
-                self.error_msg("Error in parsing: illegal character: %s "%word)
-        print(tokenize_all)
-        stop = raw_input()
     #print truth table
     def print_table(self,approved,denied):
         table = PrettyTable()
@@ -255,7 +238,6 @@ class operations:
                             if(i[1] == j):
                                 table.add_row([j, '','','',i[0]])
         print(table)
-
     #printing DFA diagram: output image
     def print_DFA_diagram(self,transition):
         G=pgv.AGraph()
@@ -267,63 +249,196 @@ class operations:
             initial = i[0]
             value = i[1]
             to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,value)
+        to_append = to_append + 'rankdir=LR{ %s [shape=doublecircle]'%target
+        to_append = to_append + '}'
         to_append = to_append + '}'
         A=pgv.AGraph(to_append)
         A.layout()
         A.layout(prog='dot')
         A.draw('dfa.png')
+    #----- regex to DFA functions -------
+    #tokenize input of user and check if correct
+    def tokenize(self,arr):
+        tokenize = map(str,arr)
+        tokenize_all = ''
+        for word in tokenize:
+            if re.match('^[a-z,A-Z]',word):
+                tokenize_all = tokenize_all + "(String,%s) "%word
+            elif re.match('^[1-9]',word):
+                tokenize_all = tokenize_all + "(Integer,%s) "%word
+            elif word == '+':
+                tokenize_all = tokenize_all + "(Plus,%s) "%word
+            elif word == '*':
+                tokenize_all = tokenize_all + "(Epsilon,%s) "%word
+            elif word == '(' or word == ')':
+                tokenize_all = tokenize_all + "(parenthesis,%s) "%word
+            else:
+                self.error_msg("Error in parsing: illegal character: %s "%word)
+        print(tokenize_all)
+        stop = raw_input()
     # print DFA diagram from language
-    def print_DFA_diagram_language(self,arr):
-        self.tokenize(arr)
+    def print_DFA_diagram_language(self,prio,less_prio):
         G=pgv.AGraph()
         G=pgv.AGraph(strict=False,directed=True)
         initial = 0
         target = 1
         to_append = 'digraph G {size="4,4"; '
+        #print the dfa of priority expression
+        prio = prio.split('(')
+        for expression in prio:
+            if expression == '':
+                pass
+            else:
+                if '+' in expression:
+                    arr = expression.split('+')
+                    for i in range(0,len(arr)):
+                        arr[i] = map(str,arr[i])
+                    i = 0
+                    indi = 0
+                    while i < len(arr):
+                        j = 0
+                        start = initial
+                        while j < len(arr[i]):
+                            if(self.greedy_scanner(arr[i],j) == 1 and re.match('^[a-z,A-Z]',arr[i][j])):
+                                to_append = to_append + '%s -> %s [label="%s"];'%(start,start,arr[i][j])
+                                j+=2
+                            elif(self.greedy_scanner(arr[i],j) == 1 and arr[i][j]== ')'):
+                                print "a"
+                                to_append = to_append + '%s -> %s;'%(start,target)
+                                to_append = to_append + '%s -> %s;'%(start-1,target)
+                                to_append = to_append + '%s -> %s;'%(target,initial)
 
-        if '+' in arr:
-            #split
-            arr = arr.split('+')
-            #turn into list each
-            for i in range(0,len(arr)):
-                arr[i] = map(str,arr[i])
-            i = 0
-            indi = 0
-            while i < len(arr):
-                j = 0
-                while j < len(arr[i]):
-                    if(self.greedy_scanner(arr[i],j) == 1):
-                        to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i][j])
-                        j+=2
-                    else:
-                        to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i][j])
-                        initial = initial + 1
-                        target = target+1
-                        j+=1
-                    if(indi > 0):
-                        initial = target - 1
-                initial = 0
-                indi = 1
-                target = target
-                i+=1
-        else:
-            arr = map(str,arr)
-            i = 0
-            while i < len(arr):
-                if(self.greedy_scanner(arr,i) == 1):
-                    to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i])
-                    i+=2
+                                j+=2
+                            else:
+                                to_append = to_append + '%s -> %s [label="%s"];'%(start,target,arr[i][j])
+                                start = start + 1
+                                target = target+1
+                                j+=1
+                            if(indi > 0):
+                                start = target - 1
+                        start = initial
+                        indi = 1
+                        i+=1
+                    initial = target
+                    target = target + 1
+                elif ')*' in expression:
+                    arr = map(str,expression)
+                    i = 0
+                    start_in = initial
+                    while i < len(arr):
+                        if(self.greedy_scanner(arr,i) == 1 and re.match('^[a-z,A-Z]',arr[i])):
+                            to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i])
+                            i+=2
+                        else:
+                            if(arr[i] == ')' and arr[i+1] == '*'):
+                                to_append = to_append + '%s -> %s;'%(initial,start_in)
+                                i+=2
+                            else:
+                                to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i])
+                                initial = initial + 1
+                                target = target+1
+                                i+=1
+
                 else:
-                    to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i])
-                    initial = initial + 1
-                    target = target+1
-                    i+=1
+                    arr = map(str,expression)
+                    i = 0
+                    while i < len(arr):
+                        if(self.greedy_scanner(arr,i) == 1):
+                            to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i])
+                            i+=2
+                        else:
+                            if(arr[i] == ')'):
+                                i+=1
+                                pass
+                            else:
+                                to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i])
+                                initial = initial + 1
+                                target = target+1
+                                i+=1
 
+        less_prio = less_prio.split('(')
+        for expression in less_prio:
+            if expression == '':
+                pass
+            else:
+                if '+' in expression:
+                    arr = expression.split('+')
+                    for i in range(0,len(arr)):
+                        arr[i] = map(str,arr[i])
+                    i = 0
+                    indi = 0
+                    while i < len(arr):
+                        j = 0
+                        start = initial
+                        while j < len(arr[i]):
+                            if(self.greedy_scanner(arr[i],j) == 1 and re.match('^[a-z,A-Z]',arr[i][j])):
+                                to_append = to_append + '%s -> %s [label="%s"];'%(start,start,arr[i][j])
+                                j+=2
+                            else:
+                                to_append = to_append + '%s -> %s [label="%s"];'%(start,target,arr[i][j])
+                                start = start + 1
+                                target = target+1
+                                j+=1
+                            if(indi > 0):
+                                start = target - 1
+                        start = initial
+                        indi = 1
+                        i+=1
+                else:
+                    arr = map(str,expression)
+                    i = 0
+                    while i < len(arr):
+                        if(self.greedy_scanner(arr,i) == 1):
+                            to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i])
+                            i+=2
+                        else:
+                            to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i])
+                            initial = initial + 1
+                            target = target+1
+                            i+=1
+
+        to_append = to_append + 'rankdir=LR{ %s [shape=doublecircle]'%initial
+        to_append = to_append + '}'
         to_append = to_append + '}'
         A=pgv.AGraph(to_append)
         A.layout()
         A.layout(prog='dot')
         A.draw('dfa-language.png')
+
+
+    def process_regex(self,arr):
+        self.tokenize(arr)
+        arr_map = map(str,arr)
+        i = 0
+        priority = list()
+        less_prio = list()
+        paren = -1
+        while i < len(arr_map):
+            if arr_map[i] == '(':
+                paren = 1
+            elif arr_map[i] == ')':
+                paren = 0
+                priority.append(')')
+
+            if paren == 1:
+                priority.append(arr_map[i])
+                i +=1
+            elif re.match('^[a-z,A-Z,0-9]',arr_map[i]) or arr_map[i] == '+':
+                if(self.greedy_scanner(arr_map,i) == 1):
+                    less_prio.append(arr_map[i]+'*')
+                    i+=2
+                else:
+                    less_prio.append(arr_map[i])
+                    i+=1
+            elif arr_map[i] == '*' and arr_map[i-1] == ')':
+                priority.append(arr_map[i])
+                i+=1
+            else:
+                i+=1
+        priority = self.concatenate_list_data(priority)
+        less_prio = self.concatenate_list_data(less_prio)
+        self.print_DFA_diagram_language(priority,less_prio)
+
     #the main
     def main(self):
         self.clear()
@@ -333,7 +448,7 @@ class operations:
             choice = raw_input("Select Option \n\n1: Inialize DFA and check accepted and denied Languages;\n2: Convert Regular Expression to DFA diagram\n3: exit program\n\n: ")
             if(choice == '2'):
                 regex = raw_input("Enter Language: ")
-                self.print_DFA_diagram_language(regex)
+                self.process_regex(regex)
             elif(choice == '1'):
                 get_input_user_class = process_file_data();
                 # get data from file
