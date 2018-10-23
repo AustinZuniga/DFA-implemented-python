@@ -13,6 +13,8 @@ from prettytable import PrettyTable
 import pygraphviz as pgv
 from IPython.display import Image, display
 import re
+from PIL import Image
+
 
 # DFA Function: check if language is in DFA machine
 class DFA:
@@ -256,6 +258,8 @@ class operations:
         A.layout()
         A.layout(prog='dot')
         A.draw('dfa.png')
+        a = Image.open('dfa.png')
+        a.show()
     #----- regex to DFA functions -------
     #tokenize input of user and check if correct
     def tokenize(self,arr):
@@ -303,12 +307,13 @@ class operations:
                                 to_append = to_append + '%s -> %s [label="%s"];'%(start,start,arr[i][j])
                                 j+=2
                             elif(self.greedy_scanner(arr[i],j) == 1 and arr[i][j]== ')'):
-                                print "a"
                                 to_append = to_append + '%s -> %s;'%(start,target)
                                 to_append = to_append + '%s -> %s;'%(start-1,target)
                                 to_append = to_append + '%s -> %s;'%(target,initial)
-
                                 j+=2
+                            elif( arr[i][j] == ')'):
+                                j+=1
+                                pass
                             else:
                                 to_append = to_append + '%s -> %s [label="%s"];'%(start,target,arr[i][j])
                                 start = start + 1
@@ -404,6 +409,8 @@ class operations:
         A.layout()
         A.layout(prog='dot')
         A.draw('dfa-language.png')
+        a = Image.open('dfa-language.png')
+        a.show()
 
 
     def process_regex(self,arr):
