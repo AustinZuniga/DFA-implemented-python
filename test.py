@@ -51,26 +51,30 @@ def print_DFA_diagram_language(prio,less_prio):
                 indi = 0
                 while i < len(arr):
                     j = 0
+                    start = initial
                     while j < len(arr[i]):
                         if(greedy_scanner(arr[i],j) == 1 and re.match('^[a-z,A-Z]',arr[i][j])):
-                            to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i][j])
+                            to_append = to_append + '%s -> %s [label="%s"];'%(start,start,arr[i][j])
                             j+=2
                         elif(greedy_scanner(arr[i],j) == 1 and arr[i][j]== ')'):
                             print "a"
-                            to_append = to_append + '%s -> %s;'%(initial,target)
-                            to_append = to_append + '%s -> %s;'%(initial-1,target)
+                            to_append = to_append + '%s -> %s;'%(start,target)
+                            to_append = to_append + '%s -> %s;'%(start-1,target)
+                            to_append = to_append + '%s -> %s;'%(target,initial)
 
                             j+=2
                         else:
-                            to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i][j])
-                            initial = initial + 1
+                            to_append = to_append + '%s -> %s [label="%s"];'%(start,target,arr[i][j])
+                            start = start + 1
                             target = target+1
                             j+=1
                         if(indi > 0):
-                            initial = target - 1
-                    initial = 0
+                            start = target - 1
+                    start = initial
                     indi = 1
                     i+=1
+                initial = target
+                target = target + 1
             elif ')*' in expression:
                 arr = map(str,expression)
                 i = 0
@@ -105,6 +109,46 @@ def print_DFA_diagram_language(prio,less_prio):
                             target = target+1
                             i+=1
 
+    less_prio = less_prio.split('(')
+    for expression in less_prio:
+        if expression == '':
+            pass
+        else:
+            if '+' in expression:
+                arr = expression.split('+')
+                for i in range(0,len(arr)):
+                    arr[i] = map(str,arr[i])
+                i = 0
+                indi = 0
+                while i < len(arr):
+                    j = 0
+                    start = initial
+                    while j < len(arr[i]):
+                        if(greedy_scanner(arr[i],j) == 1 and re.match('^[a-z,A-Z]',arr[i][j])):
+                            to_append = to_append + '%s -> %s [label="%s"];'%(start,start,arr[i][j])
+                            j+=2
+                        else:
+                            to_append = to_append + '%s -> %s [label="%s"];'%(start,target,arr[i][j])
+                            start = start + 1
+                            target = target+1
+                            j+=1
+                        if(indi > 0):
+                            start = target - 1
+                    start = initial
+                    indi = 1
+                    i+=1
+            else:
+                arr = map(str,expression)
+                i = 0
+                while i < len(arr):
+                    if(greedy_scanner(arr,i) == 1):
+                        to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i])
+                        i+=2
+                    else:
+                        to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i])
+                        initial = initial + 1
+                        target = target+1
+                        i+=1
     to_append = to_append + '}'
     A=pgv.AGraph(to_append)
     A.layout()
@@ -149,5 +193,5 @@ def process_regex(arr):
 
 
 
-regex = "(abc+cd)*"
+regex = "(a+b)* (abcd*) (a+b)* ab"
 process_regex(regex)
