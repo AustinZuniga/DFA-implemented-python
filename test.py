@@ -37,18 +37,14 @@ def print_DFA_diagram_language(prio,less_prio):
     initial = 0
     target = 1
     to_append = 'digraph G {size="4,4"; '
-    i = 0
 
     prio = prio.split('(')
-    for word in prio:
-        if word == '':
+    for expression in prio:
+        if expression == '':
             pass
         else:
-            print word
-            if '+' in word:
-                #split
-                arr = word.split('+')
-                #turn into list each
+            if '+' in expression:
+                arr = expression.split('+')
                 for i in range(0,len(arr)):
                     arr[i] = map(str,arr[i])
                 i = 0
@@ -56,16 +52,13 @@ def print_DFA_diagram_language(prio,less_prio):
                 while i < len(arr):
                     j = 0
                     while j < len(arr[i]):
-                        if(greedy_scanner(arr[i],j) == 1) and (re.match('^[a-z,A-Z]',arr[i][j])):
+                        if(greedy_scanner(arr[i],j) == 1 and re.match('^[a-z,A-Z]',arr[i][j])):
                             to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i][j])
                             j+=2
-                        elif(greedy_scanner(arr[i],j) == 1) and (arr[i][j] == ')' ):
+                        elif(greedy_scanner(arr[i],j) == 1 and arr[i][j]== ')'):
+                            print "a"
                             to_append = to_append + '%s -> %s;'%(initial,target)
                             to_append = to_append + '%s -> %s;'%(initial-1,target)
-                            to_append = to_append + '%s -> %s;'%(target,start)
-
-                            initial +=1
-                            target +=1
 
                             j+=2
                         else:
@@ -76,26 +69,42 @@ def print_DFA_diagram_language(prio,less_prio):
                         if(indi > 0):
                             initial = target - 1
                     initial = 0
-                    start = initial
                     indi = 1
-                    target = target
                     i+=1
-            else:
-                arr = map(str,word)
+            elif ')*' in expression:
+                arr = map(str,expression)
                 i = 0
                 while i < len(arr):
                     if(greedy_scanner(arr,i) == 1):
                         to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i])
                         i+=2
                     else:
-                        to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i])
-                        initial = initial + 1
-                        target = target+1
-                        i+=1
-            initial = 0
-            target = 0
+                        if(arr[i] == ')' and arr[i+1] == '*'):
+                            i+=2
+                            print "au"
+                        else:
+                            to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i])
+                            initial = initial + 1
+                            target = target+1
+                            i+=1
 
-    print prio
+            else:
+                arr = map(str,expression)
+                i = 0
+                while i < len(arr):
+                    if(greedy_scanner(arr,i) == 1):
+                        to_append = to_append + '%s -> %s [label="%s"];'%(initial,initial,arr[i])
+                        i+=2
+                    else:
+                        if(arr[i] == ')'):
+                            i+=1
+                            pass
+                        else:
+                            to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i])
+                            initial = initial + 1
+                            target = target+1
+                            i+=1
+
     to_append = to_append + '}'
     A=pgv.AGraph(to_append)
     A.layout()
@@ -140,5 +149,5 @@ def process_regex(arr):
 
 
 
-regex = "(a+b)* ab"
+regex = "(abc+cd)*"
 process_regex(regex)

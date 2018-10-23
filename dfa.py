@@ -50,7 +50,7 @@ class DFA:
 
 # class for processing file data
 class process_file_data:
-    # preprocess data: removal of new line and tabs from data file
+    # preprocess data: removal of new line, spaces, tabs and comments from data file
     def preprocess_data(self,data):
         data = data.split(';')
         data_arr = list()
@@ -58,8 +58,12 @@ class process_file_data:
             word_to = ""
             i=0
             while i < len(word):
-                if word[i] == '\n' or word[i] == '\t' :
+                if word[i] == '\n' or word[i] == '\t' or word[i] == ' ' :
                     i = i + 1
+                elif word[i] == '#':
+                    i = i + 1
+                    while word[i] != '\n':
+                        i = i + 1
                 else:
                     word_to = word_to + word[i]
                     i = i + 1
@@ -75,14 +79,14 @@ class process_file_data:
                     states = self.check_data(process[1],process[0])
                 elif(process[0] == 'alphabet'):
                     alphabet = self.check_data(process[1],process[0])
-                elif(process[0] == 'accept states'):
+                elif(process[0] == 'accept_states'):
                     accept_states = self.check_data(process[1],process[0])
-                elif(process[0] == 'start state'):
+                elif(process[0] == 'start_state'):
                     start_state = self.check_data(process[1],process[0])
                 elif(process[0] == 'transition'):
                     transition = self.check_data(process[1],process[0])
                 else:
-                    operation.error_msg()
+                    operation.error_msg("illegal DFA tuple declaration: %s"%process[0])
             else:
                 pass
         return states,alphabet,accept_states,start_state,transition
@@ -90,17 +94,17 @@ class process_file_data:
     def check_data(self,data,type):
         data_arr = list()
         operation = operations()
-        if(type == "states" or type == "accept states"):
+        if(type == "states" or type == "accept_states"):
             data = data.split(',')
             # limit states to 3
             if len(data) > 4:
-                operation.error_msg()
+                operation.error_msg("number of states must be less than 5 ")
             for token in data:
                 if re.match('^[0-9]',token):
                     data_arr.append(int(token))
                 else:
-                    operation.error_msg()
-        elif(type == "start state"):
+                    operation.error_msg("%s must be an integer"%type)
+        elif(type == "start_state"):
             data_arr = int(data)
         elif(type == "alphabet"):
             data = data.split(',')
@@ -108,7 +112,7 @@ class process_file_data:
                 if re.match('^[A-Z,a-z]',token):
                     data_arr.append(str(token))
                 else:
-                    operation.error_msg()
+                    operation.error_msg("%s must be an alphabet"%type)
         elif(type == "transition"):
             data_arr = dict()
             #split transition data
@@ -186,8 +190,8 @@ class operations:
                 concat = concat + value
         return concat
     # error message
-    def error_msg(self):
-        print('\n\nError parsing input')
+    def error_msg(self,msg):
+        print "\n\n%s"%msg
         sys.exit()
     #tokenize input of user and check if correct
     def tokenize(self,arr):
@@ -203,7 +207,7 @@ class operations:
             elif word == '*':
                 tokenize_all = tokenize_all + "(Epsilon,%s) "%word
             else:
-                self.error_msg()
+                self.error_msg("Error in parsing: illegal character: %s "%word)
         print(tokenize_all)
         stop = raw_input()
     #print truth table

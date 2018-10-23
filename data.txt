@@ -1,10 +1,34 @@
-states->0,1,2,3;
-alphabet->a,b,c;
+#-------------------------------------------------------------------------------------------------
+#RULES:
+#
+# #to start a comment
+#tuple name supported: "states",'alphabet','transition','start_state', accept_states
+#to declare a tuple, (name of tuple) -> (values seperated by comma)
+#      transition->
+#			{
+#						initial={state},
+#						value={alphabet},
+#						target = {state}
+#			}:
+#			{
+#						initial={state},
+#						value={alphabet},
+#						target = {state}
+#			}
+#  states, accept states and start state must be an integer
+#  alphabet must be a string
+#-------------------------------------------------------------------------------------------------
+
+
+states->0,1,2,3;    #this tuple declares the state state
+
+alphabet->a,b,c;    #this tuple declares the alphabet
+
 transition->
 	{
-		initial=0,
-		value=a,
-		target=1
+		initial=0, # inital state
+		value=a,   # the value
+		target=1   # target state
 	}:
 	{
 		initial=1,
@@ -20,6 +44,8 @@ transition->
 		initial=2,
 		value=c,
 		target=3
-	};
-start state->0;
-accept states->1,2,3;
+	};                   #this tuple declares the transition function
+
+start_state->0;        #this tuple declares the start state
+
+accept_states->1,2,3;  #this tuple declares the accept states
