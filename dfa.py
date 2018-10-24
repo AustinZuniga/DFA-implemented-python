@@ -163,7 +163,7 @@ class operations:
             generated = ''.join(word)
             array_of_language.append(generated)
         return array_of_language
-    #turn list values into a single variable
+    #turn list values into a string
     def concatenate_list_data(self,list):
         result= ''
         for element in list:
@@ -179,7 +179,7 @@ class operations:
                     return 0
             else:
                 break
-    #todo
+    #todo: convert DFA to regular expression
     def DFA_to_REGEX(self,transition):
         concat = ""
         for word in sorted(transition.iterkeys()):
@@ -209,6 +209,7 @@ class operations:
         os.system('cls||clear')
         print(' ----------------------------------------------')
         print('|     DETERMINISTIC FINITE AUTOMATA (DFA)      |')
+        print('|       (generator, checker, converter)        |')
         print('|                                              |')
         print('| DFA DATA: data.txt                           |')
         print(' ----------------------------------------------')
@@ -251,8 +252,7 @@ class operations:
             initial = i[0]
             value = i[1]
             to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,value)
-        to_append = to_append + 'rankdir=LR{ %s [shape=doublecircle]'%target
-        to_append = to_append + '}'
+        to_append = to_append + 'rankdir=LR'
         to_append = to_append + '}'
         A=pgv.AGraph(to_append)
         A.layout()
@@ -275,18 +275,18 @@ class operations:
             elif word == '*':
                 tokenize_all = tokenize_all + "(Epsilon,%s) "%word
             elif word == '(' or word == ')':
-                tokenize_all = tokenize_all + "(parenthesis,%s) "%word
+                tokenize_all = tokenize_all + "(parenthesis,'%s') "%word
             else:
                 self.error_msg("Error in parsing: illegal character: %s "%word)
         print(tokenize_all)
         stop = raw_input()
     # print DFA diagram from language
-    def print_DFA_diagram_language(self,prio,less_prio):
+    def print_DFA_diagram_language(self,prio,less_prio,title):
         G=pgv.AGraph()
         G=pgv.AGraph(strict=False,directed=True)
         initial = 0
         target = 1
-        to_append = 'digraph G {size="4,4"; '
+        to_append = 'digraph G {size="4,4"; label="%s";'%title
         #print the dfa of priority expression
         prio = prio.split('(')
         for expression in prio:
@@ -299,6 +299,7 @@ class operations:
                         arr[i] = map(str,arr[i])
                     i = 0
                     indi = 0
+                    start_f = ""
                     while i < len(arr):
                         j = 0
                         start = initial
@@ -308,12 +309,16 @@ class operations:
                                 j+=2
                             elif(self.greedy_scanner(arr[i],j) == 1 and arr[i][j]== ')'):
                                 to_append = to_append + '%s -> %s;'%(start,target)
-                                to_append = to_append + '%s -> %s;'%(start-1,target)
+                                to_append = to_append + '%s -> %s;'%(start_f,target)
                                 to_append = to_append + '%s -> %s;'%(target,initial)
+                                to_append = to_append + '%s -> %s;'%(initial,target)
                                 j+=2
                             elif( arr[i][j] == ')'):
+                                to_append = to_append + '%s -> %s;'%(start,target)
+                                to_append = to_append + '%s -> %s;'%(start_f,target)
+                                to_append = to_append + '%s -> %s;'%(target,initial)
                                 j+=1
-                                pass
+
                             else:
                                 to_append = to_append + '%s -> %s [label="%s"];'%(start,target,arr[i][j])
                                 start = start + 1
@@ -321,6 +326,8 @@ class operations:
                                 j+=1
                             if(indi > 0):
                                 start = target - 1
+                        if i == 0:
+                            start_f = start
                         start = initial
                         indi = 1
                         i+=1
@@ -337,6 +344,7 @@ class operations:
                         else:
                             if(arr[i] == ')' and arr[i+1] == '*'):
                                 to_append = to_append + '%s -> %s;'%(initial,start_in)
+                                to_append = to_append + '%s -> %s;'%(start_in,initial)
                                 i+=2
                             else:
                                 to_append = to_append + '%s -> %s [label="%s"];'%(initial,target,arr[i])
@@ -411,8 +419,7 @@ class operations:
         A.draw('dfa-language.png')
         a = Image.open('dfa-language.png')
         a.show()
-
-
+    #process regular expression, determine priorities
     def process_regex(self,arr):
         self.tokenize(arr)
         arr_map = map(str,arr)
@@ -444,7 +451,7 @@ class operations:
                 i+=1
         priority = self.concatenate_list_data(priority)
         less_prio = self.concatenate_list_data(less_prio)
-        self.print_DFA_diagram_language(priority,less_prio)
+        self.print_DFA_diagram_language(priority,less_prio,arr)
 
     #the main
     def main(self):
@@ -484,7 +491,7 @@ class operations:
                     print('Start state: %s'%start_state)
                     print('Accept States: %s '%accept_states)
                     print("Converted DFA to Regular Expression: %s \n\n"%self.DFA_to_REGEX(transition))
-                    input_user_choice = raw_input("Enter 1 to generate, 2 for manual input: ")
+                    input_user_choice = raw_input("1 to generate random language\n2 for manual input \n3 go back\n\n: ")
                     if(input_user_choice == '1'):
                         # get length of language to be generated from user
                         input_user = raw_input("Enter Lenght of language to be generated: ");
@@ -527,4 +534,4 @@ try:
     operation.main()
 except:
     # if error encountered display error message
-    print("\n\nThere was an error in running the program.")
+    print("There was an error in running the program.\n")
