@@ -60,7 +60,7 @@ class process_file_data:
             word_to = ""
             i=0
             while i < len(word):
-                if word[i] == '\n' or word[i] == '\t' or word[i] == ' ' :
+                if word[i] == '\n' or word[i] == '\t':
                     i = i + 1
                 elif word[i] == '#':
                     i = i + 1
@@ -279,7 +279,7 @@ class operations:
             else:
                 self.error_msg("Error in parsing: illegal character: %s "%word)
         print(tokenize_all)
-        stop = raw_input()
+        stop = raw_input("Press any key to continue...(except poweroff!)")
     # print DFA diagram from language
     def print_DFA_diagram_language(self,prio,less_prio,title):
         G=pgv.AGraph()
@@ -299,7 +299,7 @@ class operations:
                         arr[i] = map(str,arr[i])
                     i = 0
                     indi = 0
-                    start_f = ""
+                    start_f = list()
                     while i < len(arr):
                         j = 0
                         start = initial
@@ -309,7 +309,10 @@ class operations:
                                 j+=2
                             elif(self.greedy_scanner(arr[i],j) == 1 and arr[i][j]== ')'):
                                 to_append = to_append + '%s -> %s;'%(start,target)
-                                to_append = to_append + '%s -> %s;'%(start_f,target)
+                                k=0
+                                while k < len(start_f):
+                                    to_append = to_append + '%s -> %s;'%(start_f[k],target)
+                                    k+=1
                                 to_append = to_append + '%s -> %s;'%(target,initial)
                                 to_append = to_append + '%s -> %s;'%(initial,target)
                                 j+=2
@@ -326,8 +329,8 @@ class operations:
                                 j+=1
                             if(indi > 0):
                                 start = target - 1
-                        if i == 0:
-                            start_f = start
+
+                        start_f.append(start)
                         start = initial
                         indi = 1
                         i+=1
@@ -511,7 +514,7 @@ class operations:
                                 denied.append(i)
                         # print truth table
                         self.print_table(accepted,denied)
-                        stop = raw_input()
+                        stop = raw_input("Press any key to continue...(except poweroff!)")
                     # for manual input of language
                     elif(input_user_choice == '2'):
                         input_user = raw_input("Enter language: ");
@@ -524,7 +527,7 @@ class operations:
                             denied.append(input_user)
                         # print truth table
                         self.print_table(accepted,denied)
-                        stop = raw_input()
+                        stop = raw_input("Press any key to continue...(except poweroff!)")
 
 #main
 #inialize class
