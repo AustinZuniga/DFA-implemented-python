@@ -60,7 +60,7 @@ class process_file_data:
             word_to = ""
             i=0
             while i < len(word):
-                if word[i] == '\n' or word[i] == '\t':
+                if word[i] == '\n' or word[i] == '\t' or word[i] == ' ':
                     i = i + 1
                 elif word[i] == '#':
                     i = i + 1
@@ -318,7 +318,10 @@ class operations:
                                 j+=2
                             elif( arr[i][j] == ')'):
                                 to_append = to_append + '%s -> %s;'%(start,target)
-                                to_append = to_append + '%s -> %s;'%(start_f,target)
+                                k=0
+                                while k < len(start_f):
+                                    to_append = to_append + '%s -> %s;'%(start_f[k],target)
+                                    k+=1
                                 to_append = to_append + '%s -> %s;'%(target,initial)
                                 j+=1
 
