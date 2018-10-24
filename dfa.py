@@ -386,6 +386,7 @@ class operations:
                         arr[i] = map(str,arr[i])
                     i = 0
                     indi = 0
+                    start_f = list()
                     while i < len(arr):
                         j = 0
                         start = initial
@@ -400,9 +401,18 @@ class operations:
                                 j+=1
                             if(indi > 0):
                                 start = target - 1
+                        if (i+1 == len(arr) ):
+                            to_append = to_append + '%s -> %s;'%(start,target)
+                            k=0
+                            while k < len(start_f):
+                                to_append = to_append + '%s -> %s;'%(start_f[k],target)
+                                k+=1
+                        start_f.append(start)
                         start = initial
                         indi = 1
                         i+=1
+                    initial = target
+                    target = target + 1
                 else:
                     arr = map(str,expression)
                     i = 0
